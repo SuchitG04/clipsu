@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>Succlippy</string>
+    <key>CFBundleDisplayName</key>
+    <string>Succlippy</string>
+    <key>CFBundleIdentifier</key>
+    <string>ai.succlippy.app</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>0.1.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleExecutable</key>
+    <string>Succlippy</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>14.0</string>
+    <!-- Menu bar agent: no Dock icon, no main window on launch. -->
+    <key>LSUIElement</key>
+    <true/>
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <!-- Usage strings shown if the system ever prompts. -->
+    <key>NSAppleEventsUsageDescription</key>
+    <string>Succlippy pastes clipboard entries into the app you were using.</string>
+</dict>
+</plist>
