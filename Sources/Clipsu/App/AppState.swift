@@ -2,6 +2,12 @@ import AppKit
 import Combine
 import ClipsuCore
 
+/// Vim input contexts. Only meaningful when `settings.vimEnabled` is on.
+enum InputMode: Equatable {
+    case normal
+    case search
+}
+
 /// The single source of truth for the UI: holds the visible item list, search/filter
 /// state and selection, and exposes every user action (paste, copy, pin, delete, …).
 @MainActor
@@ -24,6 +30,15 @@ final class AppState: ObservableObject {
     // ⌘K actions menu.
     @Published var showingActions = false
     @Published var actionIndex = 0
+
+    // Vim mode.
+    @Published var inputMode: InputMode = .normal
+    @Published var pendingOperator: Character?   // first key of gg / dd / yy
+    private var pendingWorkItem: DispatchWorkItem?
+
+    var vimEnabled: Bool { settings.vimEnabled }
+    /// Whether the search field should hold focus: always (non-vim) or only in Search mode (vim).
+    var shouldFocusSearch: Bool { !settings.vimEnabled || inputMode == .search }
 
     /// Bumped to ask the view layer to refocus the search field (panel re-shown).
     @Published var focusNonce = 0
@@ -88,8 +103,47 @@ final class AppState: ObservableObject {
     func prepareForPresentation() {
         query = ""
         filter = .all
+        showingActions = false
+        clearPending()
+        inputMode = settings.vimEnabled ? .normal : .search
         reload()
     }
+
+    // MARK: - Vim mode
+
+    func enterSearch() { inputMode = .search }
+    func enterNormal() { clearPending(); inputMode = .normal }
+
+    /// Buffers the first key of a two-stroke command (g/d/y), auto-cancelling after a short delay.
+    func setPending(_ key: Character) {
+        pendingOperator = key
+        pendingWorkItem?.cancel()
+        let work = DispatchWorkItem { [weak self] in self?.pendingOperator = nil }
+        pendingWorkItem = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8, execute: work)
+    }
+
+    func clearPending() {
+        pendingWorkItem?.cancel()
+        pendingWorkItem = nil
+        pendingOperator = nil
+    }
+
+    func selectFirst() { selectedID = items.first?.id }
+    func selectLast() { selectedID = items.last?.id }
+
+    func nextFilter() {
+        let all = ClipFilter.allCases
+        if let i = all.firstIndex(of: filter) { filter = all[(i + 1) % all.count] }
+    }
+
+    func previousFilter() {
+        let all = ClipFilter.allCases
+        if let i = all.firstIndex(of: filter) { filter = all[(i - 1 + all.count) % all.count] }
+    }
+
+    func actionsFirst() { actionIndex = 0 }
+    func actionsLast() { actionIndex = max(0, currentActions.count - 1) }
 
     // MARK: - Selection helpers (keyboard nav)
 

@@ -42,6 +42,12 @@ private struct GeneralTab: View {
             Picker("When pressing Return", selection: $settings.enterBehavior) {
                 ForEach(EnterBehavior.allCases, id: \.self) { Text($0.title).tag($0) }
             }
+            Section {
+                Toggle("Vim mode", isOn: $settings.vimEnabled)
+                Text("Modal, keyboard-only navigation. Normal mode: j/k move, / search, i edit, l opens actions, gg/G jump, dd/x delete, yy copy, p pin, Tab switches filters. ⌘ shortcuts keep working.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
         .formStyle(.grouped)
         .padding()

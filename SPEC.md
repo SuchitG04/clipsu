@@ -195,13 +195,13 @@ Raycast-style two-pane, Spotlight-grade polish.
 - **Motion:** quick fade/scale-in on open (~120ms), no bouncy animations. Respect "Reduce Motion."
 - **Theme:** follows system light/dark automatically; uses system accent color.
 - **Empty states:** clean centered icon + text ("No clipboard history yet", "No results").
-- **Fully keyboard-navigable:** ↑/↓ select, ←/→ or click switch filters, `⌘K` actions, type to search, `Esc` dismiss.
+- **Fully keyboard-navigable:** ↑/↓ select, `Tab`/`Shift-Tab` (or click) switch filters, `⌘K` actions, type to search, `Esc` dismiss. An optional **Vim mode** adds modal navigation (§16).
 
 ---
 
 ## 10. Settings window
 
-- **General:** launch at login, panel position (center / under cursor / remember), `↵` behavior (default **always paste**; option: smart per type).
+- **General:** launch at login, panel position (center / under cursor / remember), `↵` behavior (default **always paste**; option: smart per type), **Vim mode** (off by default — see §16).
 - **Hotkey:** recorder for the global open shortcut (default `⌥C`).
 - **History:** retention policy — keep *all* / last *N* days / last *N* items (default: **last 1000 items**, pinned exempt). Max item size. Dedup scope (last item vs. entire history).
 - **Privacy:** excluded apps list, toggle "ignore concealed/transient pasteboards" (default on), pause capture.
@@ -259,3 +259,80 @@ Raycast-style two-pane, Spotlight-grade polish.
 3. **Default retention** — keep the **last 1000 items**, drop oldest beyond that. Pinned items exempt from the cap. Adjustable in Settings.
 4. **`↵` behavior** — **always paste** into the previously focused app, regardless of item kind. (For images, paste sends the image to the frontmost app; open/Quick Look remain on `Space` / `⌘O`.)
 5. **Build/signing** — **ad-hoc local build** for this Mac. No paid Apple account needed. The build script produces a `Clipsu.app` bundle you can drop in `/Applications`.
+
+---
+
+## 16. Vim mode (opt-in)
+
+A modal, keyboard-only navigation layer for people fluent in vim keybindings. **Off by default**; toggled in *Settings → General → Vim mode*. When off, the panel behaves exactly as described elsewhere (type-to-search, arrows, `↵`). Everything below applies **only when Vim mode is on**.
+
+### Modes
+
+Three input contexts. The current mode is shown as a small indicator in the footer (`NORMAL` / `SEARCH`), and the footer hint bar adapts to show the relevant vim keys.
+
+| Mode | Entered by | Search bar focus | Typing does |
+|---|---|---|---|
+| **Normal** | opening the panel (⌥C), or `Esc`/`Enter` from Search | not focused | runs commands |
+| **Search** | `/` from Normal | focused | filters live |
+| **Actions** (⌘K menu) | `l` or `⌘K` from Normal | n/a | menu navigation |
+
+The panel **opens in Normal mode**. Because letters are commands in Normal mode, you must press `/` before you can type a query (this is the intended vim tradeoff).
+
+### Normal mode — list
+
+| Key | Action |
+|---|---|
+| `j` / `k` | move selection down / up |
+| `gg` | jump to top |
+| `G` | jump to bottom |
+| `/` | enter Search mode (focus search bar) |
+| `i` | edit the selected entry ("insert"; same as `⌘E`) |
+| `l` | open the ⌘K actions menu |
+| `Enter` | paste selected entry (the primary action) |
+| `yy` | copy selected entry to clipboard (yank) |
+| `dd` or `x` | delete selected entry |
+| `p` | pin / unpin selected entry |
+| `Tab` / `Shift-Tab` | next / previous filter tab |
+| `Space` | Quick Look (image lightbox) |
+| `Esc` | close the panel |
+
+All existing `⌘` shortcuts (`⌘C`, `⌘E`, `⌘P`, `⌘O`, `⌘S`, `⌘⌫`, `⌘↵`, `⌘K`, `⌘,`) **remain active** in vim mode — they don't collide with single-letter commands.
+
+### Search mode
+
+- Typing filters the list live (same FTS search as always).
+- `Esc` → return to **Normal** mode, keeping the query and results, top result selected.
+- `Enter` → same as `Esc`: return to Normal with the top result selected. It does **not** paste (press `Enter` again in Normal to paste). This is the vim-consistent choice.
+- Standard text editing works in the field (`⌘A`, arrows, backspace). `⌘` shortcuts still apply.
+
+### Actions menu (opened via `l` or `⌘K`)
+
+| Key | Action |
+|---|---|
+| `j` / `k` | move highlight down / up |
+| `gg` / `G` | jump to first / last action |
+| `l` or `Enter` | perform the highlighted action |
+| `h` or `Esc` | close the menu (back to Normal) |
+
+Per-action `⌘` shortcuts and the on-screen hint chips remain shown and active.
+
+### Non-standard mappings (deliberate)
+
+- `l` opens the menu / confirms an action, and `h` closes it — vim's `l`/`h` are character motions; here they're repurposed as "go right/into" and "go left/back" since a list has no horizontal motion. (Per user's request.)
+- `p` = pin (not vim's paste); paste is `Enter`. Chosen because `Enter` already covers paste and pin needs a home.
+- `Space` = Quick Look (vim's `Space` is forward-char), kept from the non-vim UX.
+
+### Multi-key sequences
+
+`gg`, `dd`, `yy` use a lightweight operator-pending state: the first key (`g`, `d`, `y`) is buffered for ~800 ms; the matching second key completes the command, any other key (or timeout) cancels it. A pending prefix is shown in the footer. **Counts and motions are out of scope for v1** (no `5j`, no `d{motion}`).
+
+### Out of scope (v1)
+
+- **Vim editing inside the text editor** (⌘E / edit overlay): the editor stays a plain insert-style field — `Esc` cancels, `⌘↵` saves. A full modal editor there is a possible future enhancement.
+- Counts, registers, marks, visual selection.
+
+### Implementation notes
+
+- Add `vimEnabled: Bool` (default false) to `AppSettings`, and an `InputMode { normal, search }` + pending-operator buffer to `AppState`.
+- `PanelController`'s key monitor branches on `settings.vimEnabled` and `appState.inputMode` before the existing handling. In Normal mode it intercepts the vim keys and **does not** focus the search field on show; `/` focuses it and switches to Search; `Esc` in Search unfocuses and switches back.
+- Footer gains a mode indicator + adaptive hints; `Tab`/`Shift-Tab` filter cycling is wired in both vim and non-vim modes.

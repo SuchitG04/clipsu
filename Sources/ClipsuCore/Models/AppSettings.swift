@@ -84,6 +84,7 @@ public final class AppSettings: ObservableObject, @unchecked Sendable {
 
         self.launchAtLogin = defaults.object(forKey: K.launchAtLogin) as? Bool ?? false
         self.paused = defaults.object(forKey: K.paused) as? Bool ?? false
+        self.vimEnabled = defaults.object(forKey: K.vimEnabled) as? Bool ?? false
     }
 
     // The hotkey is published as a pair so the recorder/manager can react together.
@@ -108,6 +109,7 @@ public final class AppSettings: ObservableObject, @unchecked Sendable {
 
     @Published public var launchAtLogin: Bool { didSet { defaults.set(launchAtLogin, forKey: K.launchAtLogin) } }
     @Published public var paused: Bool { didSet { defaults.set(paused, forKey: K.paused) } }
+    @Published public var vimEnabled: Bool { didSet { defaults.set(vimEnabled, forKey: K.vimEnabled) } }
 
     private enum K {
         static let hotKeyCode = "hotKeyCode"
@@ -125,6 +127,7 @@ public final class AppSettings: ObservableObject, @unchecked Sendable {
         static let excludedBundleIDs = "excludedBundleIDs"
         static let launchAtLogin = "launchAtLogin"
         static let paused = "paused"
+        static let vimEnabled = "vimEnabled"
     }
 }
 

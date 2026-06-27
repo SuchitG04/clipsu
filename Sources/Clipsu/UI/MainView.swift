@@ -35,6 +35,9 @@ struct MainView: View {
                 FooterBar(
                     itemCount: appState.items.count,
                     toast: appState.toast,
+                    vimEnabled: appState.vimEnabled,
+                    mode: appState.inputMode,
+                    pending: appState.pendingOperator,
                     onActions: { appState.toggleActions() }
                 )
             }
