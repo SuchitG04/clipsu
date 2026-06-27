@@ -1,4 +1,4 @@
-# Succlippy
+# Clipsu
 
 A native macOS clipboard history manager — long searchable history, image OCR, a
 Raycast-style two-pane panel, and a ⌘K actions menu. Menu-bar agent, zero external
@@ -25,12 +25,12 @@ See [`SPEC.md`](SPEC.md) for the full design.
 ## Build & run
 
 ```bash
-./build.sh          # release build → build/Succlippy.app (ad-hoc signed)
+./build.sh          # release build → build/Clipsu.app (ad-hoc signed)
 ./build.sh run      # build, then launch
 ./build.sh debug    # debug build
 ```
 
-Then move `build/Succlippy.app` to `/Applications` if you like, and launch it. It lives
+Then move `build/Clipsu.app` to `/Applications` if you like, and launch it. It lives
 in the menu bar (look for the clipboard icon) — there is no Dock icon.
 
 To develop:
@@ -42,7 +42,7 @@ swift test          # run the unit tests (18 tests)
 
 ## First run / permissions
 
-- On first launch Succlippy asks for **Accessibility** permission. This is only needed for
+- On first launch Clipsu asks for **Accessibility** permission. This is only needed for
   **paste-back** (synthesizing ⌘V into the previous app). Grant it in
   *System Settings → Privacy & Security → Accessibility*. Without it, entries are still
   placed on the clipboard — just press ⌘V yourself.
@@ -73,7 +73,7 @@ swift test          # run the unit tests (18 tests)
 ## Where data lives
 
 ```
-~/Library/Application Support/Succlippy/
+~/Library/Application Support/Clipsu/
 ├── db.sqlite      # history + search index
 ├── images/        # full images
 └── thumbs/        # thumbnails
@@ -83,9 +83,9 @@ Clear everything from *Settings → Data → Clear All History*, or just delete 
 
 ## Architecture
 
-- **`SucclippyCore`** (library, unit-tested): models, SQLite wrapper + schema/FTS5 search,
+- **`ClipsuCore`** (library, unit-tested): models, SQLite wrapper + schema/FTS5 search,
   content classification, image storage, Vision OCR.
-- **`Succlippy`** (executable): app lifecycle, clipboard monitor, capture pipeline,
+- **`Clipsu`** (executable): app lifecycle, clipboard monitor, capture pipeline,
   paste service, Carbon global hotkey, login item, and the SwiftUI/AppKit panel + settings UI.
 
 ## Notes / known caveats

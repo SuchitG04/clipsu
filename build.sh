@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# Builds Succlippy and assembles a runnable Succlippy.app bundle (ad-hoc signed).
+# Builds Clipsu and assembles a runnable Clipsu.app bundle (ad-hoc signed).
 #
 # Usage:
-#   ./build.sh            # release build → ./build/Succlippy.app
+#   ./build.sh            # release build → ./build/Clipsu.app
 #   ./build.sh debug      # debug build
 #   ./build.sh run        # build (release) then launch the app
 #
@@ -20,7 +20,7 @@ case "${1:-}" in
     *)     echo "Unknown argument: $1"; exit 1 ;;
 esac
 
-APP_NAME="Succlippy"
+APP_NAME="Clipsu"
 BUILD_DIR="build"
 APP_DIR="${BUILD_DIR}/${APP_NAME}.app"
 CONTENTS="${APP_DIR}/Contents"

@@ -2,26 +2,26 @@
 import PackageDescription
 
 let package = Package(
-    name: "Succlippy",
+    name: "Clipsu",
     platforms: [
         .macOS(.v14)
     ],
     targets: [
         // Pure-ish, testable logic: models, SQLite storage, classification, OCR.
         .target(
-            name: "SucclippyCore",
+            name: "ClipsuCore",
             linkerSettings: [
                 .linkedLibrary("sqlite3")
             ]
         ),
         // The GUI application: app lifecycle, panel, services that drive AppKit.
         .executableTarget(
-            name: "Succlippy",
-            dependencies: ["SucclippyCore"]
+            name: "Clipsu",
+            dependencies: ["ClipsuCore"]
         ),
         .testTarget(
-            name: "SucclippyCoreTests",
-            dependencies: ["SucclippyCore"]
+            name: "ClipsuCoreTests",
+            dependencies: ["ClipsuCore"]
         ),
     ]
 )

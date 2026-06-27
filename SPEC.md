@@ -1,4 +1,4 @@
-# Succlippy — Clipboard Manager Spec
+# Clipsu — Clipboard Manager Spec
 
 A native macOS clipboard history manager. Raycast-clipboard-quality, Spotlight-aesthetic, minimal and elegant. Built for personal use.
 
@@ -42,7 +42,7 @@ All third-party deps via Swift Package Manager. No Electron, no web stack — na
 ## 3. Architecture
 
 ```
-Succlippy (menu bar agent)
+Clipsu (menu bar agent)
 ├── ClipboardMonitor      polls NSPasteboard.changeCount (~0.4s), reads new contents
 ├── CaptureService        builds ClipboardItem, dedup, privacy filters, persists
 ├── OCRService            async Vision OCR on image items → ocrText
@@ -98,9 +98,9 @@ macOS gives no clipboard-change notification. Poll `NSPasteboard.general.changeC
 **FTS5 virtual table** indexes `plainText + ocrText + sourceAppName` for instant search.
 
 **Storage locations**
-- DB: `~/Library/Application Support/Succlippy/db.sqlite`
-- Images: `~/Library/Application Support/Succlippy/images/{id}.png`
-- Thumbs: `~/Library/Application Support/Succlippy/thumbs/{id}.jpg`
+- DB: `~/Library/Application Support/Clipsu/db.sqlite`
+- Images: `~/Library/Application Support/Clipsu/images/{id}.png`
+- Thumbs: `~/Library/Application Support/Clipsu/thumbs/{id}.jpg`
 
 ---
 
@@ -118,7 +118,7 @@ macOS gives no clipboard-change notification. Poll `NSPasteboard.general.changeC
 - Skip pasteboards marked `org.nspasteboard.TransientType` or `org.nspasteboard.ConcealedType` (password managers like 1Password set these) — never store passwords.
 - User-configurable **app exclusion list** (don't capture from these bundle IDs).
 - Everything is **local only**; no network calls ever.
-- Optional: pause capture (menu bar toggle "Pause Succlippy").
+- Optional: pause capture (menu bar toggle "Pause Clipsu").
 
 ---
 
@@ -253,9 +253,9 @@ Raycast-style two-pane, Spotlight-grade polish.
 
 ## 15. Resolved decisions
 
-1. **App name** — Succlippy.
+1. **App name** — Clipsu.
 2. **Default hotkey** — `⌥C` (Option+C), user-configurable in Settings.
    - ⚠️ Note: ⌥C is normally the `ç` character. Registering it globally means the app opens instead of typing `ç`. Fine if you don't type `ç`; if that ever bites, switch to `⌥⌘C` in Settings. Keeping ⌥C as the default per your call.
 3. **Default retention** — keep the **last 1000 items**, drop oldest beyond that. Pinned items exempt from the cap. Adjustable in Settings.
 4. **`↵` behavior** — **always paste** into the previously focused app, regardless of item kind. (For images, paste sends the image to the frontmost app; open/Quick Look remain on `Space` / `⌘O`.)
-5. **Build/signing** — **ad-hoc local build** for this Mac. No paid Apple account needed. The build script produces a `Succlippy.app` bundle you can drop in `/Applications`.
+5. **Build/signing** — **ad-hoc local build** for this Mac. No paid Apple account needed. The build script produces a `Clipsu.app` bundle you can drop in `/Applications`.
