@@ -106,6 +106,7 @@ final class AppState: ObservableObject {
         showingActions = false
         clearPending()
         inputMode = settings.vimEnabled ? .normal : .search
+        selectedID = nil   // always start on the first row when the panel opens
         reload()
     }
 
@@ -254,6 +255,12 @@ final class AppState: ObservableObject {
     }
 
     func delete(_ item: ClipboardItem) {
+        // If we're deleting the selected row, move selection to its neighbour
+        // (next, else previous) so it doesn't jump back to the top on reload.
+        if item.id == selectedID, let idx = items.firstIndex(where: { $0.id == item.id }) {
+            let neighbour = idx + 1 < items.count ? items[idx + 1] : (idx > 0 ? items[idx - 1] : nil)
+            selectedID = neighbour?.id
+        }
         try? database.delete(id: item.id)
         imageStore.deleteFiles([item.imagePath, item.thumbPath].compactMap { $0 })
         reload()
