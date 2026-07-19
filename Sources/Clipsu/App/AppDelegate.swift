@@ -21,6 +21,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var accessibilityAlertShowing = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // A second copy can otherwise contend for the one global Carbon hotkey,
+        // making one of the menu-bar instances appear unresponsive. Keep the
+        // earliest-launched instance and have later copies exit immediately.
+        guard keepRunningAsPrimaryInstance() else { return }
+
         do {
             database = try Database()
         } catch {
@@ -69,6 +74,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         monitor?.stop()
         hotKey?.unregister()
         retentionTimer?.invalidate()
+    }
+
+    // MARK: - Single instance
+
+    /// Returns `true` for the oldest running process with Clipsu's bundle ID.
+    /// Comparing PIDs breaks a tie deterministically if two launches race.
+    private func keepRunningAsPrimaryInstance() -> Bool {
+        let currentPID = ProcessInfo.processInfo.processIdentifier
+        let apps = NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier ?? "")
+        let primary = apps.min { lhs, rhs in
+            let lhsDate = lhs.launchDate ?? .distantFuture
+            let rhsDate = rhs.launchDate ?? .distantFuture
+            return lhsDate == rhsDate
+                ? lhs.processIdentifier < rhs.processIdentifier
+                : lhsDate < rhsDate
+        }
+
+        guard primary?.processIdentifier != currentPID else { return true }
+        Log.info("another Clipsu instance is already running; terminating duplicate")
+        NSApp.terminate(nil)
+        return false
     }
 
     // MARK: - Hotkey

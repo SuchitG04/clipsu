@@ -31,12 +31,20 @@ final class PanelController {
             defer: false
         )
         panel.isFloatingPanel = true
-        panel.level = .floating
+        // Full-screen apps can draw above `.floating` windows. Use an overlay level
+        // so the panel remains visible when invoked over another app's full-screen
+        // Space (for example, a browser video player or game).
+        panel.level = .screenSaver
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = true
         panel.hidesOnDeactivate = false
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
+        panel.collectionBehavior = [
+            .canJoinAllSpaces,
+            .canJoinAllApplications,
+            .fullScreenAuxiliary,
+            .stationary,
+        ]
         panel.animationBehavior = .utilityWindow
         panel.isMovableByWindowBackground = false
 
