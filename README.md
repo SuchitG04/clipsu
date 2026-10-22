@@ -24,6 +24,8 @@ See [`SPEC.md`](SPEC.md) for the full design.
 
 ## Build & run
 
+Run these commands on macOS; Clipsu depends on Apple system frameworks.
+
 ```bash
 ./build.sh          # release build → build/Clipsu.app (ad-hoc signed)
 ./build.sh run      # build, then launch
